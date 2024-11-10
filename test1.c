@@ -12,11 +12,14 @@ int main()
         changenice(parentPid, 1);
         nice = getnice(parentPid);
         printf(1, "After nice(%d,1), getnice(%d) = %d\n", parentPid, parentPid, nice);
-        sleep(.1);
+        // put child to sleep so that parent has a chance to print lines
+        sleep(100);
         exit();
     }
     else
     {
+        // put parent to sleep so that child has a chance to print lines
+        sleep(100);
         nice = getnice(childPid);
         printf(1, "Child pid = %d\ngetnice(%d) = %d\n", childPid, childPid, nice);
         changenice(childPid, 1);

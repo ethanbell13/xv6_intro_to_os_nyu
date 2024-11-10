@@ -3,7 +3,7 @@
 #include "stat.h"
 #include "user.h"
 
-unsigned int MAX = 1009;
+unsigned int MAX = 3000;
 
 int sqrt(int x);
 void printPrimes(int pid);
