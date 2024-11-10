@@ -329,9 +329,9 @@ int wait(void)
 // Round robin priority scheduler. Need to choose between this and round robin during compile time
 void scheduler(void)
 {
-  int i;
   struct proc *p;
 
+  // choose a process
   for (;;)
   {
     // Enable interrupts on this processor.
@@ -339,35 +339,58 @@ void scheduler(void)
 
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
+
+#ifdef RR
+
+    for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+    {
+      if (p->state != RUNNABLE)
+        continue;
+
+      // Switch to chosen process.  It is the process's job
+      // to release ptable.lock and then reacquire it
+      // before jumping back to us.
+      proc = p;
+      switchuvm(p);
+      p->state = RUNNING;
+
+      swtch(&cpu->scheduler, p->context);
+      switchkvm();
+
+      // Process is done running for now.
+      // It should have changed its p->state before coming back.
+      c->proc = 0;
+    }
+
+#else
+
     // per instructions,
+    int i;
     for (i = 1; i <= 5; i++)
     {
       // Loop through ptable looking for a process with a nice value less than or equal to i
       for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
       {
-        // Degug if statement
-        // if (p->nice == 1 && p->state == SLEEPING)
-        //   cprintf("PID %d has a nice value of %d and is sleeping\n", p->pid, p->nice);
         if (p->state != RUNNABLE)
           continue;
         if (p->nice > i)
           continue;
-        // Switch to chosen process.  It is the process's job
-        // to release ptable.lock and then reacquire it
-        // before jumping back to us.
+
         proc = p;
         switchuvm(p);
         p->state = RUNNING;
-        // When returning to scheduler, we will start with high priority processes again.
+
+        // When returning for scheduler, we will start with high priority processes again.
         i = 1;
+
         swtch(&cpu->scheduler, p->context);
         switchkvm();
 
-        // Process is done running for now.
-        // It should have changed its p->state before coming back.
         proc = 0;
       }
     }
+#endif
+
     release(&ptable.lock);
   }
 }
@@ -685,11 +708,12 @@ int printtable()
   // get lock
   acquire(&ptable.lock);
 
-  cprintf("PID\tNICE\tSTATE\n");
+  cprintf("PID\tNICE\tSTATE\tCORE\n");
 
   // loop over table printing each item
-  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
-  {
+  for (p = ptable.proc; p < &ptable.proc[10]; p++)
+  { // UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE
+
     if (p->state == UNUSED)
       cprintf("%d\t%d\tUNUSED\n", p->pid, p->nice);
     else if (p->state == EMBRYO)
