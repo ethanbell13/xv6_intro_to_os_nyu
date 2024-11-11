@@ -169,7 +169,6 @@ UPROGS=\
 	_echo\
 	_forktest\
 	_grep\
-	_hello\
 	_init\
 	_kill\
 	_ln\
@@ -184,8 +183,11 @@ UPROGS=\
 	_zombie\
 	_nice\
 	_test1\
+	_test2\
+	_test3\
 	_test4\
 	_test5\
+	_test6\
 	_extratest1\
 	_extratest2\
 	_extratest3\

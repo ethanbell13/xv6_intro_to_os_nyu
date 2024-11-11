@@ -3,10 +3,10 @@
 #include "stat.h"
 #include "user.h"
 
-unsigned int MAX = 3000;
+unsigned int MAX = 10000;
 
 int sqrt(int x);
-void printPrimes(int pid);
+void printPidAtPrimes(int pid);
 
 int main()
 {
@@ -23,7 +23,7 @@ int main()
         {
             pid = getpid();
             changenice(pid, i);
-            printPrimes(pid);
+            printPidAtPrimes(pid);
             exit();
         }
     }
@@ -32,7 +32,7 @@ int main()
     exit();
 }
 
-void printPrimes(int pid)
+void printPidAtPrimes(int pid)
 {
     unsigned int i, j, prime;
     for (i = 2; i <= MAX; i++)
@@ -45,7 +45,7 @@ void printPrimes(int pid)
                 break;
             }
         if (prime)
-            printf(1, "%d: PID %d\n", i, pid);
+            printf(1, "%d\t", pid);
     }
 }
 int sqrt(int x)

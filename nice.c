@@ -4,7 +4,6 @@
 
 int main(int argc, char *argv[])
 {
-    printf(1, "In nice.c\n");
     int pid, val, oldNice;
     if (argc == 2)
     {

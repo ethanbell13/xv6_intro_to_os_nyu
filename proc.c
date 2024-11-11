@@ -605,40 +605,36 @@ void procdump(void)
 }
 int changenice(int pid, int val)
 {
-  // cprintf("Inside changenice()\n");
   struct proc *p;
   int oldNice;
+  if (val < 1 || val > 5)
+    return -1;
   acquire(&ptable.lock);
   for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
   {
     if (p->pid == pid)
     {
-      // cprintf("Found pid %d\n", pid);
       oldNice = p->nice;
       p->nice = val;
       release(&ptable.lock);
       return oldNice;
     }
   }
-  cprintf("Did not find pid%d\n", pid);
   release(&ptable.lock);
   return -1;
 }
 int getnice(int pid)
 {
-  // cprintf("Inside getnice\n");
   struct proc *p;
   acquire(&ptable.lock);
   for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
   {
     if (p->pid == pid)
     {
-      // cprintf("Found pid %d\n", pid);
       release(&ptable.lock);
       return p->nice;
     }
   }
-  cprintf("Did not find pid %d\n", pid);
   release(&ptable.lock);
   return -1;
 }
@@ -657,7 +653,6 @@ int lock(int id)
 release() is already used in spinlock.c*/
 int resourcerelease(int id)
 {
-  // cprintf("In resourcerelease\n");
   if (id > 7 || id < 0)
   {
     cprintf("Error, invalid lock id!\n");

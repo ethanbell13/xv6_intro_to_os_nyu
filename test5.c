@@ -3,12 +3,13 @@
 #include "stat.h"
 #include "user.h"
 
-#define LOOPS 2000
+#define LOOPS 5000
 #define PCOUNT 5
 
 int main()
 {
     int i, pid = getpid();
+    changenice(pid, 1);
 
     for (i = PCOUNT; i >= 1; i--)
     {
