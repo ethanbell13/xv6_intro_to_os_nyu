@@ -84,7 +84,6 @@ int sys_uptime(void)
 }
 int sys_changenice(void)
 {
-  // cprintf("Inside sys_changenice\n");
   int pid, val;
   if (argint(0, &pid) < 0)
     return -1;
@@ -94,7 +93,6 @@ int sys_changenice(void)
 }
 int sys_getnice(void)
 {
-  // cprintf("Inside sys_getnice\n");
   int pid;
   if (argint(0, &pid) < 0)
     return -1;

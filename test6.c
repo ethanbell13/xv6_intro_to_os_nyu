@@ -9,10 +9,12 @@ int main()
 {
     int pid = getpid(), nice = getnice(pid), i;
     printf(1, "PID %d has nice value %d\n", pid, nice);
+    printf(1, "Two children will now be created. Each will get a nice value of 1 and each will count to 1 billion.\n");
     printf(1, "Calling fork()\n");
     if (fork() == 0)
     {
         changenice(getpid(), 1);
+        printf(1, "Calling fork()\n");
         if (fork() == 0)
         {
             changenice(getpid(), 1);
@@ -28,7 +30,7 @@ int main()
         exit();
     }
     // parent sleeps to ensure both fork calls go through
-    sleep(20);
+    sleep(40);
     printf(1, "\nPID %d has regained runtime\n", pid);
     wait();
     wait();
