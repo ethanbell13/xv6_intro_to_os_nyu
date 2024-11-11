@@ -1,10 +1,3 @@
-/*
-Test Case 1: Basic Lock/Unlock
-Create a process that acquires and releases a lock
-Verify the lock state before and after operations
-Ensure proper handling of invalid lock IDs (0-7)
-Create another process at the same priority and show how it waits to acquire a lock on a resourceId that hasn’t been released yet.
-*/
 #include "types.h"
 #include "stat.h"
 #include "user.h"
@@ -37,6 +30,8 @@ int main()
         pid = getpid();
         nice = getnice(pid);
         printf(1, "PID %d has nice value %d\n", pid, nice);
+        printf(1, "Calling resourcerelease(%d) in PID %d returns %d\n", resourceId, pid, resourcerelease(resourceId));
+        printf(1, "A return value of -1 signifies that the lock was not acquired\n");
         printf(1, "Calling lock(%d) in PID %d\n\n", resourceId, pid);
         lock(resourceId);
         printf(1, "PID %d has locked resource %d\n", pid, resourceId);
@@ -46,7 +41,7 @@ int main()
     else
     {
         // put parent to sleep so that child can print out all of its lines
-        sleep(30);
+        sleep(60);
         nice = getnice(pid);
         for (i = 0; i < 5; i++)
         {

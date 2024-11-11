@@ -55,7 +55,7 @@ int main()
                 }
             for (i = 0; i < PRIORITY_2_CHILDREN; i++)
                 wait();
-            printf(1, "\nAll priority 2 children have terminated.\n\n");
+            printf(1, "\nAll priority 2 children have terminated.\n");
             exit();
         }
         // put parent to sleep long enough for many priority 2 children to spawn

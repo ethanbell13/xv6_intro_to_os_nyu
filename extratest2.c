@@ -1,17 +1,3 @@
-/*Test Case 2: Basic Priority Inversion
-Create a low-priority process that:
-Acquires a lock
-Performs work for at least 5 seconds while holding the lock
-Create a high-priority process that:
-Starts after a delay of approximately 3 seconds (or before the low priority process releases the lock)
-Attempts to acquire the same lock
-Your test should log:
-When the low priority task was started
-When the lock was acquired (can be in relative units of time)
-When the high priority task was started
-Process priorities at key points
-Lock holder information
-*/
 #include "types.h"
 #include "stat.h"
 #include "user.h"

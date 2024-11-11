@@ -394,39 +394,6 @@ void scheduler(void)
     release(&ptable.lock);
   }
 }
-// Original scheduler
-//  void scheduler(void)
-//  {
-//    struct proc *p;
-
-//   for (;;)
-//   {
-//     // Enable interrupts on this processor.
-//     sti();
-
-//     // Loop over process table looking for process to run.
-//     acquire(&ptable.lock);
-//     for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
-//     {
-//       if (p->state != RUNNABLE)
-//         continue;
-
-//       // Switch to chosen process.  It is the process's job
-//       // to release ptable.lock and then reacquire it
-//       // before jumping back to us.
-//       proc = p;
-//       switchuvm(p);
-//       p->state = RUNNING;
-//       swtch(&cpu->scheduler, p->context);
-//       switchkvm();
-
-//       // Process is done running for now.
-//       // It should have changed its p->state before coming back.
-//       proc = 0;
-//     }
-//     release(&ptable.lock);
-//   }
-// }
 
 // Enter scheduler.  Must hold only ptable.lock
 // and have changed proc->state. Saves and restores
@@ -605,47 +572,43 @@ void procdump(void)
 }
 int changenice(int pid, int val)
 {
-  // cprintf("Inside changenice()\n");
   struct proc *p;
   int oldNice;
+  if (val < 1 || val > 5)
+    return -1;
   acquire(&ptable.lock);
   for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
   {
     if (p->pid == pid)
     {
-      // cprintf("Found pid %d\n", pid);
       oldNice = p->nice;
       p->nice = val;
       release(&ptable.lock);
       return oldNice;
     }
   }
-  cprintf("Did not find pid%d\n", pid);
   release(&ptable.lock);
   return -1;
 }
 int getnice(int pid)
 {
-  // cprintf("Inside getnice\n");
   struct proc *p;
   acquire(&ptable.lock);
   for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
   {
     if (p->pid == pid)
     {
-      // cprintf("Found pid %d\n", pid);
       release(&ptable.lock);
       return p->nice;
     }
   }
-  cprintf("Did not find pid %d\n", pid);
   release(&ptable.lock);
   return -1;
 }
 
 int lock(int id)
 {
-  if (id > 7 || id < 0)
+  if (id > 6 || id < 0)
   {
     cprintf("Error, invalid lock id!\n");
     return -1;
@@ -657,18 +620,19 @@ int lock(int id)
 release() is already used in spinlock.c*/
 int resourcerelease(int id)
 {
-  // cprintf("In resourcerelease\n");
-  if (id > 7 || id < 0)
+  if (id > 6 || id < 0)
   {
     cprintf("Error, invalid lock id!\n");
     return -1;
   }
+  if (resources[id].lock.locked == 0 || proc->pid != resources[id].lock.pid)
+    return -1;
   releasesleep(&resources[id].lock);
   return 0;
 }
 int lockstate(int id)
 {
-  if (id > 7 || id > 0)
+  if (id > 6 || id < 0)
   {
     cprintf("Error, invalid lock id!\n");
     return -1;
@@ -679,7 +643,7 @@ int lockstate(int id)
 int pilock(int id)
 {
   int lkHolderPID, lkHolderNice, pi_detected = 0;
-  if (id > 7 || id < 0)
+  if (id > 6 || id < 0)
   {
     cprintf("Error, invalid lock id!\n");
     return -1;
@@ -693,7 +657,7 @@ int pilock(int id)
       changenice(lkHolderPID, proc->nice);
   }
   acquiresleep(&resources[id].lock);
-  if (pi_detected)
+  if (pi_detected == 1)
     changenice(lkHolderPID, lkHolderNice);
   return 0;
 }

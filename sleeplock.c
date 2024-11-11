@@ -25,13 +25,7 @@ void acquiresleep(struct sleeplock *lk)
   // int i;
   acquire(&lk->lk);
   while (lk->locked)
-  {
-    // cprintf("%d is waiting for lock %s", lk->lk.cpu->proc->pid);
-    // for (i = 0; i < RESOURCE_NAME_SIZE; i++)
-    //   cprintf("%c", lk->name[i]);
-    // cprintf("\n");
     sleep(lk, &lk->lk);
-  }
   lk->locked = 1;
   lk->pid = proc->pid;
   release(&lk->lk);
