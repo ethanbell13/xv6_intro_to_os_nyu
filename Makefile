@@ -174,39 +174,15 @@ UPROGS=\
 	_ln\
 	_ls\
 	_mkdir\
-	_preprocess\
 	_rm\
 	_sh\
 	_stressfs\
 	_usertests\
 	_wc\
 	_zombie\
-	_nice\
-	_test1\
-	_test2\
-	_test3\
-	_test4\
-	_test5\
-	_test6\
-	_extratest1\
-	_extratest2\
-	_extratest3\
-	_printtable\
 
 fs.img: mkfs README  data.txt $(UPROGS)
 	./mkfs fs.img README data.txt $(UPROGS)
-fs.img: mkfs README test_0.txt $(UPROGS)
-	./mkfs fs.img README test_0.txt $(UPROGS)
-fs.img: mkfs README test_1.txt $(UPROGS)
-	./mkfs fs.img README test_1.txt $(UPROGS)	
-fs.img: mkfs README test_2.txt $(UPROGS)
-	./mkfs fs.img README test_2.txt $(UPROGS)
-fs.img: mkfs README test_3.txt $(UPROGS)
-	./mkfs fs.img README test_3.txt $(UPROGS)
-fs.img: mkfs README test_4.txt $(UPROGS)
-	./mkfs fs.img README test_4.txt $(UPROGS)
-fs.img: mkfs README test_5.txt $(UPROGS)
-	./mkfs fs.img README test_5.txt $(UPROGS)
 -include *.d
 
 clean: 

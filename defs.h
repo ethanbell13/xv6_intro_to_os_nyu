@@ -116,13 +116,6 @@ void userinit(void);
 int wait(void);
 void wakeup(void *);
 void yield(void);
-int changenice(int, int);
-int getnice(int);
-int lock(int);
-int resourcerelease(int);
-int lockstate(int);
-int pilock(int);
-int printtable(void);
 
 // swtch.S
 void swtch(struct context **, struct context *);

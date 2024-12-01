@@ -124,12 +124,6 @@ static int (*syscalls[])(void) = {
     [SYS_mkdir] sys_mkdir,
     [SYS_close] sys_close,
     [SYS_changenice] sys_changenice,
-    [SYS_getnice] sys_getnice,
-    [SYS_lock] sys_lock,
-    [SYS_resourcerelease] sys_resourcerelease,
-    [SYS_lockstate] sys_lockstate,
-    [SYS_pilock] sys_pilock,
-    [SYS_printtable] sys_printtable,
 };
 
 void syscall(void)

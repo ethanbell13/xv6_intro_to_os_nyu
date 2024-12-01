@@ -20,10 +20,3 @@
 #define SYS_link 19
 #define SYS_mkdir 20
 #define SYS_close 21
-#define SYS_changenice 22
-#define SYS_getnice 23
-#define SYS_lock 24
-#define SYS_resourcerelease 25
-#define SYS_lockstate 26
-#define SYS_pilock 27
-#define SYS_printtable 28
