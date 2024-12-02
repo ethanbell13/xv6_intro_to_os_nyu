@@ -71,6 +71,66 @@ int argstr(int n, char **pp)
     return -1;
   return fetchstr(addr, pp);
 }
+// // string formatter based on cprintf
+// void strFormatter(char *fmt, char *result, ...)
+// {
+//   int i, c, locking;
+//   uint *argp;
+//   char *s;
+//   if (fmt == 0)
+//     panic("null fmt in snprintf");
+
+//   argp = (uint *)(void *)(&fmt + 1);
+//   for (i = 0; (c = fmt[i] & 0xff) != 0; i++)
+//   {
+//     if (c != '%')
+//     {
+//       result[i] = (c);
+//       continue;
+//     }
+//     c = fmt[++i] & 0xff;
+//     if (c == 0)
+//       break;
+//     switch (c)
+//     {
+//     case 'd':
+//       printint(*argp++, 10, 1);
+//       break;
+//     case 'x':
+//     case 'p':
+//       printint(*argp++, 16, 0);
+//       break;
+//     case 's':
+//       if ((s = (char *)*argp++) == 0)
+//         s = "(null)";
+//       for (; *s; s++)
+//         consputc(*s);
+//       break;
+//     case '%':
+//       consputc('%');
+//       break;
+//     default:
+//       // Print unknown % sequence to draw attention.
+//       consputc('%');
+//       consputc(c);
+//       break;
+//     }
+//   }
+
+//   if (locking)
+//     release(&cons.lock);
+// }
+// Converts an integer to a string in base 10.
+// void unsignedIntToString(int n, char *str)
+// {
+//   int i = 0;
+
+// }
+
+// Create array in kernel memory to store system call log
+char recent_system_calls[N][TRACE_LOG_BUFFER_SIZE];
+// Create circular index for system call log
+unsigned int next_rc_sys_call_index = 0;
 
 extern int sys_chdir(void);
 extern int sys_close(void);
@@ -165,17 +225,30 @@ void syscall(void)
 {
   int num;
 
+  char *sys_call_trace;
   num = proc->tf->eax;
 
   if (num > 0 && num < NELEM(syscalls) && syscalls[num]) // Will also need to verify that syscalls_strings[num] is valid.
   {
+
     // Special trace line for exit system call
     if (proc->strace != 0 && num == SYS_exit)
-      cprintf("TRACE: pid = %d | command_name = %s | syscall = %s\n", proc->pid, proc->name, syscalls_strings[num]);
+    {
+      *sys_call_trace = "TRACE: pid = %d | command_name = %s | syscall = %s\n", proc->pid, proc->name, syscalls_strings[num];
+      if (N > 0) // avoid division by 0
+                 // recent_system_calls[next_rc_sys_call_index++ % N] = sys_call_trace;
+        cprintf(sys_call_trace);
+      itoa(5);
+    }
     proc->tf->eax = syscalls[num]();
     // Standard trace line
     if (proc->strace != 0)
-      cprintf("TRACE: pid = %d | command_name = %s | syscall = %s | return value = %d\n", proc->pid, proc->name, syscalls_strings[num], proc->tf->eax);
+    {
+      *sys_call_trace = "TRACE: pid = %d | command_name = %s | syscall = %s | return value = %d\n", proc->pid, proc->name, syscalls_strings[num], proc->tf->eax;
+      if (N > 0) // avoid division by 0
+                 // recent_system_calls[next_rc_sys_call_index++ % N] = sys_call_trace;
+        cprintf(sys_call_trace);
+    }
   }
   else
   {
