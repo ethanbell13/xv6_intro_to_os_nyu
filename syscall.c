@@ -102,6 +102,8 @@ extern int sys_pilock(void);
 extern int sys_printtable(void);
 extern int sys_straceon(void);
 extern int sys_straceoff(void);
+extern int sys_check_strace(void);
+extern int sys_set_proc_strace(void);
 
 static int (*syscalls[])(void) = {
     [SYS_fork] sys_fork,
@@ -127,6 +129,8 @@ static int (*syscalls[])(void) = {
     [SYS_close] sys_close,
     [SYS_straceon] sys_straceon,
     [SYS_straceoff] sys_straceoff,
+    [SYS_check_strace] sys_check_strace,
+    [SYS_set_proc_strace] sys_set_proc_strace,
 };
 
 static char *syscalls_strings[] = {
@@ -146,11 +150,15 @@ static char *syscalls_strings[] = {
     [SYS_uptime] = "uptime",
     [SYS_open] = "open",
     [SYS_write] = "write",
-    [SYS_mknod] = "sys_mknod",
-    [SYS_unlink] = "sys_unlink",
-    [SYS_link] = "sys_link",
-    [SYS_mkdir] = "sys_mkdir",
-    [SYS_close] = "sys_close",
+    [SYS_mknod] = "mknod",
+    [SYS_unlink] = "unlink",
+    [SYS_link] = "link",
+    [SYS_mkdir] = "mkdir",
+    [SYS_close] = "close",
+    [SYS_straceon] = "trace_on",
+    [SYS_straceoff] = "trace_off",
+    [SYS_check_strace] = "check_strace",
+    [SYS_set_proc_strace] = "set_proc_strace",
 };
 
 void syscall(void)
@@ -161,8 +169,13 @@ void syscall(void)
 
   if (num > 0 && num < NELEM(syscalls) && syscalls[num]) // Will also need to verify that syscalls_strings[num] is valid.
   {
+    // Special trace line for exit system call
+    if (proc->strace != 0 && num == SYS_exit)
+      cprintf("TRACE: pid = %d | command_name = %s | syscall = %s\n", proc->pid, proc->name, syscalls_strings[num]);
     proc->tf->eax = syscalls[num]();
-    cprintf("TRACE: pid = %d | command_name = %s | syscall = %s | return value = %d\n", proc->pid, proc->name, syscalls_strings[num], proc->tf->eax);
+    // Standard trace line
+    if (proc->strace != 0)
+      cprintf("TRACE: pid = %d | command_name = %s | syscall = %s | return value = %d\n", proc->pid, proc->name, syscalls_strings[num], proc->tf->eax);
   }
   else
   {
