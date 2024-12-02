@@ -23,13 +23,8 @@ int getpid(void);
 char *sbrk(int);
 int sleep(int);
 int uptime(void);
-int changenice(int, int);
-int getnice(int);
-int lock(int);
-int resourcerelease(int);
-int lockstate(int);
-int pilock(int);
-int printtable(void);
+int straceon(void);
+int straceoff(void);
 
 // ulib.c
 int stat(char *, struct stat *);

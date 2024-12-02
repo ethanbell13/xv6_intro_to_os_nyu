@@ -82,51 +82,17 @@ int sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
-int sys_changenice(void)
-{
-  int pid, val;
-  if (argint(0, &pid) < 0)
-    return -1;
-  if (argint(1, &val) < 0)
-    return -1;
-  return changenice(pid, val);
-}
-int sys_getnice(void)
+int sys_straceon(void)
 {
   int pid;
   if (argint(0, &pid) < 0)
     return -1;
-  return getnice(pid);
+  return straceon(pid);
 }
-int sys_lock(void)
+int sys_straceoff(void)
 {
-  int id;
-  if (argint(0, &id) < 0)
+  int pid;
+  if (argint(0, &pid) < 0)
     return -1;
-  return lock(id);
-}
-int sys_resourcerelease(void)
-{
-  int id;
-  if (argint(0, &id) < 0)
-    return -1;
-  return resourcerelease(id);
-}
-int sys_lockstate(void)
-{
-  int id;
-  if (argint(0, &id) < 0)
-    return -1;
-  return lockstate(id);
-}
-int sys_pilock(void)
-{
-  int id;
-  if (argint(0, &id) < 0)
-    return -1;
-  return pilock(id);
-}
-int sys_printtable(void)
-{
-  return printtable();
+  return straceoff(pid);
 }

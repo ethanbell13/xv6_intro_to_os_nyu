@@ -57,6 +57,8 @@
   "C_Cpp_Runner.useLinkTimeOptimization": false,
   "C_Cpp_Runner.msvcSecureNoWarnings": false,
   "files.associations": {
-    "extratest3": "cpp"
+    "extratest3": "cpp",
+    "user.h": "c",
+    "stat.h": "c"
   }
 }
