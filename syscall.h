@@ -22,5 +22,3 @@
 #define SYS_close 21
 #define SYS_straceon 25
 #define SYS_straceoff 26
-#define SYS_check_strace 27
-#define SYS_set_proc_strace 28
