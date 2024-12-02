@@ -21,13 +21,14 @@ int main(int argc, char *argv[])
         straceon();
     else if (off == 0)
         straceoff();
-    else
+    // OH question: Does strace run <command> have to be implemented in shell or can it be implemented entirely within strace.c?
+    else if (strcmp(argv[1], "run") == 0)
     {
         if (fork() == 0)
         {
-            char **newArgv = &(argv[1]);
+            char **newArgv = &(argv[2]);
             set_proc_strace();
-            exec(argv[1], newArgv);
+            exec(argv[2], newArgv);
             printf(1, "Exec failed for strace<command>\n");
         }
         wait();
