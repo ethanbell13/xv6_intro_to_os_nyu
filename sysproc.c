@@ -82,3 +82,17 @@ int sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+int sys_straceon(void)
+{
+  int pid;
+  if (argint(0, &pid) < 0)
+    return -1;
+  return straceon(pid);
+}
+int sys_straceoff(void)
+{
+  int pid;
+  if (argint(0, &pid) < 0)
+    return -1;
+  return straceoff(pid);
+}

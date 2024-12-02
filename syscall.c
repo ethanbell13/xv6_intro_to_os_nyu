@@ -100,6 +100,8 @@ extern int sys_resourcerelease(void);
 extern int sys_lockstate(void);
 extern int sys_pilock(void);
 extern int sys_printtable(void);
+extern int sys_straceon(void);
+extern int sys_straceoff(void);
 
 static int (*syscalls[])(void) = {
     [SYS_fork] sys_fork,
@@ -123,7 +125,32 @@ static int (*syscalls[])(void) = {
     [SYS_link] sys_link,
     [SYS_mkdir] sys_mkdir,
     [SYS_close] sys_close,
-    [SYS_changenice] sys_changenice,
+    [SYS_straceon] sys_straceon,
+    [SYS_straceoff] sys_straceoff,
+};
+
+static char *syscalls_strings[] = {
+    [SYS_fork] = "fork",
+    [SYS_exit] = "exit",
+    [SYS_wait] = "wait",
+    [SYS_pipe] = "pipe",
+    [SYS_read] = "read",
+    [SYS_kill] = "kill",
+    [SYS_exec] = "exec",
+    [SYS_fstat] = "fstat",
+    [SYS_chdir] = "chdir",
+    [SYS_dup] = "dup",
+    [SYS_getpid] = "getpid",
+    [SYS_sbrk] = "sbrk",
+    [SYS_sleep] = "sleep",
+    [SYS_uptime] = "uptime",
+    [SYS_open] = "open",
+    [SYS_write] = "write",
+    [SYS_mknod] = "sys_mknod",
+    [SYS_unlink] = "sys_unlink",
+    [SYS_link] = "sys_link",
+    [SYS_mkdir] = "sys_mkdir",
+    [SYS_close] = "sys_close",
 };
 
 void syscall(void)
@@ -131,9 +158,11 @@ void syscall(void)
   int num;
 
   num = proc->tf->eax;
-  if (num > 0 && num < NELEM(syscalls) && syscalls[num])
+
+  if (num > 0 && num < NELEM(syscalls) && syscalls[num]) // Will also need to verify that syscalls_strings[num] is valid.
   {
     proc->tf->eax = syscalls[num]();
+    cprintf("TRACE: pid = %d | command_name = %s | syscall = %s | return value = %d\n", proc->pid, proc->name, syscalls_strings[num], proc->tf->eax);
   }
   else
   {

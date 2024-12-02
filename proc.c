@@ -6,17 +6,6 @@
 #include "x86.h"
 #include "proc.h"
 #include "spinlock.h"
-#include "sleeplock.h"
-
-#define MAX_COMMON_RESOURCES 7
-#define COMMON_RESOURCE_ARR_SIZE 7
-
-// resource locks for int arrays
-struct commonresource
-{
-  int arr[COMMON_RESOURCE_ARR_SIZE];
-  struct sleeplock lock;
-};
 
 struct
 {
@@ -31,28 +20,6 @@ extern void forkret(void);
 extern void trapret(void);
 
 static void wakeup1(void *chan);
-
-struct commonresource resources[MAX_COMMON_RESOURCES];
-
-void initResource(struct commonresource *resource, char *name)
-{
-  int i;
-  initsleeplock(&resource->lock, name);
-  for (i = 0; i < 7; i++)
-    resource->arr[i] = i + 1;
-}
-
-void initResources()
-{
-  int i;
-  char name[10] = "Resource i", c;
-  for (i = 0; i < 7; i++)
-  {
-    c = i - 48;
-    name[9] = c;
-    initResource(&resources[i], name);
-  }
-}
 
 void pinit(void)
 {
@@ -107,9 +74,6 @@ found:
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
 
-  // set nice value
-  p->nice = 3;
-
   return p;
 }
 
@@ -119,8 +83,6 @@ void userinit(void)
 {
   struct proc *p;
   extern char _binary_initcode_start[], _binary_initcode_size[];
-
-  initResources();
 
   p = allocproc();
 
@@ -187,9 +149,6 @@ int fork(void)
   {
     return -1;
   }
-
-  // inherit nice value
-  np->nice = proc->nice;
 
   // Copy process state from p.
   if ((np->pgdir = copyuvm(proc->pgdir, proc->sz)) == 0)
@@ -340,8 +299,6 @@ void scheduler(void)
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
 
-#ifdef RR
-
     for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
     {
       if (p->state != RUNNABLE)
@@ -359,37 +316,8 @@ void scheduler(void)
 
       // Process is done running for now.
       // It should have changed its p->state before coming back.
-      c->proc = 0;
+      proc = 0;
     }
-
-#else
-
-    // per instructions,
-    int i;
-    for (i = 1; i <= 5; i++)
-    {
-      // Loop through ptable looking for a process with a nice value less than or equal to i
-      for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
-      {
-        if (p->state != RUNNABLE)
-          continue;
-        if (p->nice > i)
-          continue;
-
-        proc = p;
-        switchuvm(p);
-        p->state = RUNNING;
-
-        // When returning for scheduler, we will start with high priority processes again.
-        i = 1;
-
-        swtch(&cpu->scheduler, p->context);
-        switchkvm();
-
-        proc = 0;
-      }
-    }
-#endif
 
     release(&ptable.lock);
   }
@@ -569,4 +497,38 @@ void procdump(void)
     }
     cprintf("\n");
   }
+}
+int straceon(int pid)
+{
+  struct proc *p;
+  acquire(&ptable.lock);
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+  {
+    if (p->pid == pid)
+    {
+      p->strace = 1;
+      release(&ptable.lock);
+      return p->strace;
+    }
+  }
+  cprintf("Did not find pid %d\n", pid);
+  release(&ptable.lock);
+  return -1;
+}
+int straceoff(int pid)
+{
+  struct proc *p;
+  acquire(&ptable.lock);
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+  {
+    if (p->pid == pid)
+    {
+      p->strace = 0;
+      release(&ptable.lock);
+      return p->strace;
+    }
+  }
+  cprintf("Did not find pid %d\n", pid);
+  release(&ptable.lock);
+  return -1;
 }
